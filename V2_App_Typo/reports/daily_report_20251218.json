@@ -1,0 +1,82 @@
+{
+  "date": "2025-12-18",
+  "statistics": {
+    "total_alerts": 307,
+    "new_alerts": 0,
+    "action_required": 0,
+    "escalated": 0,
+    "high_risk": 20,
+    "today_detections": 1,
+    "avg_risk_score": "56.6385993485342020"
+  },
+  "urgent_alerts": [
+    {
+      "detected_domain": "brp-media.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-10-28 01:47:40.944584"
+    },
+    {
+      "detected_domain": "showoomprive.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-08-27 07:20:31.067243"
+    },
+    {
+      "detected_domain": "saldiprivati3.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:53.019479"
+    },
+    {
+      "detected_domain": "show-up.ir",
+      "risk_score": "72.00",
+      "status": "suspicious",
+      "detection_date": "2025-07-17 09:53:37.988433"
+    },
+    {
+      "detected_domain": "beauteprives.fr",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:30.198829"
+    },
+    {
+      "detected_domain": "the.bradery.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:30.198829"
+    },
+    {
+      "detected_domain": "showroomprivee.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:30.198829"
+    },
+    {
+      "detected_domain": "showroompriv.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:30.198829"
+    },
+    {
+      "detected_domain": "srm-media.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:30.198829"
+    },
+    {
+      "detected_domain": "www.showsroomprive.com",
+      "risk_score": "72.00",
+      "status": "pending",
+      "detection_date": "2025-07-17 09:53:30.198829"
+    }
+  ],
+  "today_alerts": [
+    {
+      "detected_domain": "thebrandera.com",
+      "original_domain": "thebradery.com",
+      "risk_score": "50.75",
+      "status": "new"
+    }
+  ]
+}

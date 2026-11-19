@@ -1,0 +1,38 @@
+{
+  "deployment_date": "2025-07-17T09:30:14.292213",
+  "version": "2.0.0",
+  "features_added": [
+    "Système de scoring de risque automatisé",
+    "Nouveaux états d'alerte avec transitions automatiques",
+    "Tâches de maintenance automatisées",
+    "Interface utilisateur améliorée",
+    "Documentation utilisateur et technique",
+    "Configuration centralisée"
+  ],
+  "database_changes": [
+    "Ajout de colonnes de scoring dans la table alerts",
+    "Création de la table risk_score_history",
+    "Création de la table scoring_config",
+    "Création de la table alert_states",
+    "Création de la table alert_status_history",
+    "Ajout de vues et fonctions PostgreSQL"
+  ],
+  "new_endpoints": [
+    "GET /risk_score - Calcul de score de risque",
+    "POST /update_alert_score - Mise à jour de score d'alerte"
+  ],
+  "maintenance_tasks": [
+    "Transitions automatiques d'état",
+    "Recalcul des scores de risque",
+    "Nettoyage des anciennes données",
+    "Génération de rapports quotidiens",
+    "Notifications par email"
+  ],
+  "next_steps": [
+    "Configurer les tâches planifiées",
+    "Tester le système en production",
+    "Former les utilisateurs",
+    "Surveiller les performances",
+    "Ajuster les seuils si nécessaire"
+  ]
+}

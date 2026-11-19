@@ -1,0 +1,27 @@
+
+# Configuration pour Linux/Unix
+
+## Option 1: Utiliser le script bash automatique
+./setup_scheduled_tasks.sh
+
+## Option 2: Configuration manuelle crontab
+# Éditer le crontab
+crontab -e
+
+# Ajouter cette ligne pour exécution quotidienne à 2h00
+0 2 * * * /home/toto/V2_App_Typo/run_maintenance.sh
+
+# Ajouter cette ligne pour surveillance horaire
+0 * * * * /home/toto/V2_App_Typo/run_monitoring.sh
+
+## Commandes utiles
+# Voir les tâches cron actuelles
+crontab -l
+
+# Voir les logs de cron
+sudo tail -f /var/log/cron
+# ou
+journalctl -u cron -f
+
+# Tester le script manuellement
+./run_maintenance.sh

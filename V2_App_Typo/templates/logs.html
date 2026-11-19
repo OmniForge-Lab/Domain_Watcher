@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypoScan - Journalisation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fc;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            color: white;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card {
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 700;
+            color: #4e73df;
+        }
+
+        .table th {
+            background-color: #f8f9fc;
+        }
+
+        /* Utilisation des classes Bootstrap standard pour les badges */
+        .bg-info {
+            color: white !important;
+        }
+
+        .bg-warning {
+            color: white !important;
+        }
+
+        .bg-danger {
+            color: white !important;
+        }
+
+        .filter-section {
+            background-color: #f8f9fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-shield-check me-2"></i> TypoScan
+        </div>
+        <div class="sidebar-menu">
+            <a href="/" class="d-flex align-items-center">
+                <i class="bi bi-speedometer2"></i> Tableau de bord
+            </a>
+            <a href="/" class="d-flex align-items-center" onclick="showArchivedAlerts(); return false;">
+                <i class="bi bi-archive"></i> Historique des alertes
+            </a>
+            <a href="/logs" class="d-flex align-items-center active">
+                <i class="bi bi-journal-text"></i> Journalisation
+            </a>
+            <a href="/admin" class="d-flex align-items-center">
+                <i class="bi bi-gear"></i> Administration
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <h4 class="mb-0">Journalisation</h4>
+                <div>
+                    <span class="text-muted">Dernière synchronisation: </span>
+                    <span id="lastSyncTime">Jamais</span>
+                    <button class="btn btn-sm btn-primary ms-2" onclick="syncWithDatabase()">
+                        <i class="bi bi-arrow-repeat"></i> Synchroniser
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Filters -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Filtres</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <label for="domainFilter" class="form-label">Domaine</label>
+                        <input type="text" class="form-control" id="domainFilter" placeholder="Filtrer par domaine">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label for="alertIdFilter" class="form-label">ID d'alerte</label>
+                        <input type="number" class="form-control" id="alertIdFilter" placeholder="Filtrer par ID">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label for="statusFilter" class="form-label">Statut</label>
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Tous les statuts</option>
+                            <option value="information">Information</option>
+                            <option value="warning">Avertissement</option>
+                            <option value="error">Erreur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" onclick="applyFilters()">
+                            <i class="bi bi-funnel"></i> Appliquer les filtres
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Journal des activités</span>
+                <div>
+                    <span class="badge bg-secondary" id="logsCount">0 entrées</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date et heure</th>
+                                <th>ID d'alerte</th>
+                                <th>Domaine</th>
+                                <th>Action</th>
+                                <th>Statut</th>
+                                <th>Détails</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Les entrées de journal seront ajoutées ici dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noLogsMessage" class="text-center py-4 d-none">
+                    <i class="bi bi-journal-x text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-2 text-muted">Aucune entrée de journal trouvée</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let allLogs = [];
+
+        // Fonction pour formater la date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('fr-FR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // Fonction pour obtenir la classe de badge en fonction du statut
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'information':
+                    return 'bg-info';
+                case 'warning':
+                    return 'bg-warning';
+                case 'error':
+                    return 'bg-danger';
+                default:
+                    return 'bg-secondary';
+            }
+        }
+
+        // Fonction pour charger les logs
+        async function loadLogs(domain = null, alertId = null, status = null) {
+            try {
+                // Construire l'URL avec les paramètres de filtrage
+                let url = '/api/logs';
+                const params = new URLSearchParams();
+                if (domain) params.append('domain', domain);
+                if (alertId) params.append('alert_id', alertId);
+                if (status) params.append('status', status);
+                if (params.toString()) url += '?' + params.toString();
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des logs');
+                }
+
+                allLogs = await response.json();
+                updateLogsTable(allLogs);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des logs', 'danger');
+            }
+        }
+
+        // Fonction pour mettre à jour le tableau des logs
+        function updateLogsTable(logs) {
+            const tableBody = document.getElementById('logsTableBody');
+            const noLogsMessage = document.getElementById('noLogsMessage');
+            const logsCount = document.getElementById('logsCount');
+
+            // Mettre à jour le compteur
+            logsCount.textContent = `${logs.length} entrée${logs.length !== 1 ? 's' : ''}`;
+
+            // Vider le tableau
+            tableBody.innerHTML = '';
+
+            if (logs.length === 0) {
+                noLogsMessage.classList.remove('d-none');
+                return;
+            }
+
+            noLogsMessage.classList.add('d-none');
+
+            // Ajouter les entrées de journal au tableau
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(log.timestamp)}</td>
+                    <td>${log.alert_id || '-'}</td>
+                    <td>${log.domain || '-'}</td>
+                    <td>${log.action}</td>
+                    <td><span class="badge ${getStatusBadgeClass(log.status)}">${log.status}</span></td>
+                    <td>${log.details}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fonction pour appliquer les filtres
+        function applyFilters() {
+            const domain = document.getElementById('domainFilter').value.trim();
+            const alertId = document.getElementById('alertIdFilter').value.trim();
+            const status = document.getElementById('statusFilter').value;
+
+            loadLogs(
+                domain || null,
+                alertId || null,
+                status || null
+            );
+        }
+
+        // Fonction pour synchroniser avec la base de données
+        async function syncWithDatabase() {
+            try {
+                showNotification('Synchronisation en cours...', 'info');
+                const response = await fetch('/sync_database');
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la synchronisation');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('lastSyncTime').textContent = new Date().toLocaleString('fr-FR');
+                    showNotification(`Synchronisation réussie. ${data.new_alerts} nouvelles alertes, ${data.updated_alerts} alertes mises à jour.`, 'success');
+                    // Recharger les logs après la synchronisation
+                    loadLogs();
+                } else {
+                    showNotification('Échec de la synchronisation', 'danger');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la synchronisation', 'danger');
+            }
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(notification);
+
+            // Supprimer la notification après 5 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Charger les logs au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLogs();
+        });
+
+        // Fonction pour afficher l'historique des alertes archivées
+        function showArchivedAlerts() {
+            fetch("/alerts_history")
+                .then(response => response.json())
+                .then(data => {
+                    let historyHtml = `
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">📁 Historique des alertes archivées</h6>
+                                <span>${data.total} alerte(s) archivée(s)</span>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-primary mb-3" onclick="window.location.href='/logs';">
+                                    ← Retour à la journalisation
+                                </button>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Domaine détecté</th>
+                                                <th>Domaine original</th>
+                                                <th>Statut</th>
+                                                <th>Date de détection</th>
+                                                <th>Date d'archivage</th>
+                                                <th>Raison</th>
+                                                <th>Archivé par</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                    `;
+                    
+                    if (data.history.length === 0) {
+                        historyHtml += `
+                            <tr>
+                                <td colspan="7" class="text-center">Aucune alerte archivée</td>
+                            </tr>
+                        `;
+                    } else {
+                        data.history.forEach(alert => {
+                            historyHtml += `
+                                <tr>
+                                    <td>${alert.detected_domain}</td>
+                                    <td>${alert.original_domain}</td>
+                                    <td><span class="badge ${getStatusBadgeClass(alert.original_status)}">${alert.original_status || 'N/A'}</span></td>
+                                    <td>${alert.detection_date?.substring(0, 10) || 'N/A'}</td>
+                                    <td>${alert.archived_date?.substring(0, 10) || 'N/A'}</td>
+                                    <td>${alert.archived_reason || 'N/A'}</td>
+                                    <td>${alert.archived_by || 'N/A'}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    
+                    historyHtml += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Sauvegarder le contenu original
+                    if (!window.originalContent) {
+                        window.originalContent = document.querySelector('.main-content').innerHTML;
+                    }
+                    
+                    // Afficher l'historique
+                    document.querySelector('.main-content').innerHTML = historyHtml;
+                })
+                .catch(error => {
+                    console.error("Erreur:", error);
+                    showNotification("Erreur lors du chargement de l'historique des alertes.", "danger");
+                });
+        }
+    </script>
+</body>
+</html>

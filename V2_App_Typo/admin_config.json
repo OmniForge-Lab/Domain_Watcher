@@ -1,0 +1,27 @@
+{
+  "weights": {
+    "similarity": 0.4,
+    "domain_age": 0.25,
+    "geolocation": 0.15,
+    "ssl_cert": 0.1,
+    "reputation": 0.1
+  },
+  "thresholds": {
+    "low_risk": 30,
+    "medium_risk": 60
+  },
+  "features": {
+    "auto_monitoring": false,
+    "auto_transitions": false,
+    "auto_scoring": false,
+    "email_notifications": true,
+    "high_risk_alerts": true,
+    "new_domain_alerts": true,
+    "virustotal_api": true,
+    "whois_api": true,
+    "geolocation_api": true,
+    "auto_cleanup": false,
+    "auto_backup": false,
+    "debug_mode": false
+  }
+}
